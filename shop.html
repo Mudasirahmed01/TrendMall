@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Carousel Test</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      background: #121212;
+    }
+    header { display: flex; justify-content: space-between; align-items: center; background: #1f1f1f; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+    header img { height: 50px; }
+    .clock { color: #fff; font-size: 18px; }
+    nav {
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      background: #1a1a1a;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 0 20px #00000080;
+      width: fit-content;
+    }
+    nav a {
+      padding: 12px 24px;
+      text-decoration: none;
+      color: #ccc;
+      font-weight: bold;
+      position: relative;
+      z-index: 1;
+      transition: color 0.3s ease;
+    }
+    nav a:hover { color: #fff; }
+    nav a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #4e9af1 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    nav a:hover::before { opacity: 1; }
+    #cartBtn {
+      margin-right: 20px;
+      background: #4e9af1;
+      border: none;
+      padding: 8px 15px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+    #cartCount {
+      background: red;
+      border-radius: 50%;
+      padding: 2px 8px;
+      font-size: 12px;
+      position: absolute;
+      top: -5px;
+      right: -10px;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+      max-width: 900px;
+      margin: 32px auto 48px auto;
+      padding: 0 16px;
+    }
+    .product-card {
+      background: #1f1f1f;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px #00000040;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+    .product-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 8px 24px #4e9af180;
+    }
+    .product-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      background: #222;
+    }
+    .product-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      color: #eee;
+    }
+    .product-card .price {
+      color: #4e9af1;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .buy-btn {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+      text-decoration: none;
+    }
+    .buy-btn:hover {
+      background: #128c7e;
+    }
+    .add-to-cart-btn {
+      background: #4e9af1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .add-to-cart-btn:hover {
+      background: #3572b7;
+    }
+    .cart-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1f1f1f;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      padding: 24px;
+      z-index: 1000;
+      max-width: 400px;
+      width: 100%;
+    }
+    .cart-popup h3 {
+      margin: 0 0 16px 0;
+      color: #fff;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .cart-popup .close {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #eee;
+    }
+    .cart-items {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+    }
+    .cart-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 12px;
+    }
+    .cart-item .name {
+      flex: 1;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .cart-item .price {
+      color: #4e9af1;
+      font-weight: bold;
+      min-width: 60px;
+      text-align: right;
+    }
+    .cart-item .quantity {
+      color: #ccc;
+      font-size: 0.8rem;
+    }
+    .total {
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 8px;
+      text-align: right;
+    }
+    button {
+      width: 100%;
+      background: #4e9af1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #3572b7;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="image.png" alt="Trend Mall Logo" />
+    <nav>
+      <a href="#"><i class="fas fa-home"></i> Home</a>
+      <a href="#"><i class="fas fa-th-large"></i> Categories</a>
+      <a href="#"><i class="fas fa-bolt"></i> Deals</a>
+      <a href="#"><i class="fas fa-user"></i> Profile</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:15px;">
+      <div class="clock" id="clock"></div>
+      <button id="cartBtn" onclick="toggleCart()">
+        <i id="cartIcon" class="fas fa-shopping-cart"></i>
+        <span id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+  <div class="products-grid">
+    <!-- 15 product cards, each with Chat & Buy and Add to Cart -->
+    <div class="product-card">
+      <img src="image.png" alt="Sneaker Pro">
+      <h3>Sneaker Pro</h3>
+      <p class="price">$49.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Sneaker%20Pro" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Sneaker Pro', 'image.png', 49.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 1">
+      <h3>Product 1</h3>
+      <p class="price">$19.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%201" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 1', 'https://via.placeholder.com/120', 19.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 2">
+      <h3>Product 2</h3>
+      <p class="price">$29.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%202" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 2', 'https://via.placeholder.com/120', 29.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 3">
+      <h3>Product 3</h3>
+      <p class="price">$39.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%203" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 3', 'https://via.placeholder.com/120', 39.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 4">
+      <h3>Product 4</h3>
+      <p class="price">$24.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%204" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 4', 'https://via.placeholder.com/120', 24.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 5">
+      <h3>Product 5</h3>
+      <p class="price">$34.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%205" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 5', 'https://via.placeholder.com/120', 34.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 6">
+      <h3>Product 6</h3>
+      <p class="price">$44.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%206" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 6', 'https://via.placeholder.com/120', 44.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 7">
+      <h3>Product 7</h3>
+      <p class="price">$54.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%207" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 7', 'https://via.placeholder.com/120', 54.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 8">
+      <h3>Product 8</h3>
+      <p class="price">$64.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%208" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 8', 'https://via.placeholder.com/120', 64.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 9">
+      <h3>Product 9</h3>
+      <p class="price">$74.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%209" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 9', 'https://via.placeholder.com/120', 74.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 10">
+      <h3>Product 10</h3>
+      <p class="price">$84.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2010" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 10', 'https://via.placeholder.com/120', 84.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 11">
+      <h3>Product 11</h3>
+      <p class="price">$94.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2011" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 11', 'https://via.placeholder.com/120', 94.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 12">
+      <h3>Product 12</h3>
+      <p class="price">$104.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2012" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 12', 'https://via.placeholder.com/120', 104.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 13">
+      <h3>Product 13</h3>
+      <p class="price">$114.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2013" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 13', 'https://via.placeholder.com/120', 114.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 14">
+      <h3>Product 14</h3>
+      <p class="price">$124.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2014" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 14', 'https://via.placeholder.com/120', 124.99)">Add to Cart</button>
+      </div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/120" alt="Product 15">
+      <h3>Product 15</h3>
+      <p class="price">$134.99</p>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="https://wa.me/923131392018?text=I'm%20interested%20in%20Product%2015" class="buy-btn">Chat & Buy</a>
+        <button class="add-to-cart-btn" onclick="addToCart('Product 15', 'https://via.placeholder.com/120', 134.99)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+  <div class="cart-popup" id="cartPopup">
+    <h3>Your Cart</h3>
+    <span id="closeCart" style="position:absolute;top:12px;right:18px;font-size:1.8rem;cursor:pointer;color:#eee;">&times;</span>
+    <div class="cart-items" id="cartItemsContainer"></div>
+    <div class="total" id="cartTotal"></div>
+    <button onclick="checkout()">Proceed to Checkout</button>
+  </div>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function toggleCart() {
+      const popup = document.getElementById('cartPopup');
+      const cartIcon = document.getElementById('cartIcon');
+      if (popup.style.display === 'block') {
+        popup.style.display = 'none';
+        cartIcon.className = 'fas fa-shopping-cart';
+      } else {
+        popup.style.display = 'block';
+        cartIcon.className = 'fas fa-times';
+      }
+    }
+    document.getElementById('closeCart').onclick = function() {
+      document.getElementById('cartPopup').style.display = 'none';
+      document.getElementById('cartIcon').className = 'fas fa-shopping-cart';
+    };
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    updateCartUI();
+
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function addToCart(name, image, price, quantity = 1) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        cart.push({ name, image, price, quantity });
+      }
+      saveCart();
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const cartCount = document.getElementById('cartCount');
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartCount.textContent = totalItems;
+
+      const cartItemsContainer = document.getElementById('cartItemsContainer');
+      cartItemsContainer.innerHTML = '';
+      cart.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}">
+          <div class="name">${item.name}</div>
+          <div class="price">$${item.price.toFixed(2)}</div>
+          <div class="quantity">Qty: ${item.quantity}</div>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+
+      const cartTotal = document.getElementById('cartTotal');
+      const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      cartTotal.textContent = `Total: $${totalPrice.toFixed(2)}`;
+    }
+
+    function checkout() {
+      alert('Proceeding to checkout');
+    }
+  </script>
+</body>
+</html>

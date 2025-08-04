@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trend Mall</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="icon" type="image/png" href="fa.png"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1f1f1f;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    header img { height: 50px; }
+
+    .clock { color: #fff; font-size: 18px; }
+
+    .hamburger {
+      display: none;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #1a1a1a;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 0 20px #00000080;
+      width: fit-content;
+      flex-wrap: wrap;
+    }
+    nav a {
+      padding: 12px 24px;
+      text-decoration: none;
+      color: #ccc;
+      font-weight: bold;
+      position: relative;
+      z-index: 1;
+      transition: color 0.3s ease;
+    }
+    nav a:hover { color: #fff; }
+    nav a::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at center, #4e9af1 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    nav a:hover::before { opacity: 1; }
+
+    #cartBtn {
+      margin-left: 15px;
+      background: #4e9af1;
+      border: none;
+      padding: 8px 15px;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+    #cartCount {
+      background: red;
+      border-radius: 50%;
+      padding: 2px 8px;
+      font-size: 12px;
+      position: absolute;
+      top: -5px;
+      right: -10px;
+    }
+
+    .carousel {
+      margin: 40px auto 0;
+      width: 90%;
+      perspective: 1000px;
+      position: relative;
+      height: 250px;
+      overflow: visible;
+    }
+    .carousel-container {
+      position: absolute;
+      width: 100%;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-style: preserve-3d;
+      animation: rotate 20s linear infinite;
+    }
+    .carousel-container img {
+      position: absolute;
+      width: 250px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+    }
+    .carousel-container img:nth-child(1) { transform: rotateY(0deg) translateZ(400px); }
+    .carousel-container img:nth-child(2) { transform: rotateY(72deg) translateZ(400px); }
+    .carousel-container img:nth-child(3) { transform: rotateY(144deg) translateZ(400px); }
+    .carousel-container img:nth-child(4) { transform: rotateY(216deg) translateZ(400px); }
+    .carousel-container img:nth-child(5) { transform: rotateY(288deg) translateZ(400px); }
+
+    .carousel::after {
+      content: "";
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 40px;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.3), transparent);
+      filter: blur(10px);
+      border-radius: 50%;
+    }
+    @keyframes rotate {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(-360deg); }
+    }
+
+    .scroll-down {
+      text-align: center;
+      font-size: 24px;
+      margin-top: 40px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+
+    h2.section-title {
+      text-align: center;
+      margin: 60px 0 20px;
+      font-size: 32px;
+      color: #4e9af1;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .product-card {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px #000;
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+    .product-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .product-card h4 {
+      margin-top: 10px;
+      color: #eee;
+    }
+    .product-card .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .chat-buy {
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      flex: 1;
+    }
+    .add-cart {
+      background: #4e9af1;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      flex: 1;
+    }
+
+    @media screen and (max-width: 768px) {
+      nav.center-nav {
+        display: none;
+        flex-direction: column;
+        background: #1a1a1a;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding: 10px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 99;
+      }
+      nav.center-nav.active {
+        display: flex;
+      }
+      .hamburger {
+        display: block;
+      }
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .product-card .actions {
+        flex-direction: column;
+        gap: 6px;
+      }
+      .carousel {
+        height: 140px;
+      }
+      .carousel-container {
+        height: 100px;
+      }
+      .carousel-container img {
+        width: 120px;
+        height: 70px;
+        border-radius: 12px;
+      }
+      .carousel-container img:nth-child(1) { transform: rotateY(0deg) translateZ(180px); }
+      .carousel-container img:nth-child(2) { transform: rotateY(72deg) translateZ(180px); }
+      .carousel-container img:nth-child(3) { transform: rotateY(144deg) translateZ(180px); }
+      .carousel-container img:nth-child(4) { transform: rotateY(216deg) translateZ(180px); }
+      .carousel-container img:nth-child(5) { transform: rotateY(288deg) translateZ(180px); }
+      .carousel::after {
+        width: 80%;
+        height: 20px;
+        bottom: -10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="image.png" alt="Trend Mall Logo" />
+    <div class="hamburger" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </div>
+    <nav class="center-nav" id="navbar">
+      <a href="#"><i class="fas fa-home"></i> Home</a>
+      <a href="#"><i class="fas fa-th-large"></i> Categories</a>
+      <a href="#"><i class="fas fa-bolt"></i> Deals</a>
+      <a href="#"><i class="fas fa-user"></i> Profile</a>
+    </nav>
+    <div style="display:flex; align-items:center; gap:15px;">
+      <div class="clock" id="clock"></div>
+      <button id="cartBtn" onclick="toggleCart()">Cart <span id="cartCount">0</span></button>
+      <div id="cartPopup" style="display:none; position:absolute; right:0; top:60px; background:#222; border-radius:10px; box-shadow:0 2px 10px #000; padding:16px; z-index:100;">
+        <ul id="cartItems" style="list-style:none; padding:0; margin:0 0 10px 0;"></ul>
+        <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="carousel">
+    <div class="carousel-container">
+      <img src="https://placehold.co/250x150?text=1" alt="1" />
+      <img src="https://placehold.co/250x150?text=2" alt="2" />
+      <img src="https://placehold.co/250x150?text=3" alt="3" />
+      <img src="https://placehold.co/250x150?text=4" alt="4" />
+      <img src="https://placehold.co/250x150?text=5" alt="5" />
+    </div>
+  </div>
+
+  <div class="scroll-down">↓ Scroll down ↓</div>
+  <h2 class="section-title">Latest Products</h2>
+  <div class="product-grid" id="productGrid"></div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const cart = [];
+    const phone = '923131392018';
+
+    function toggleCart() {
+      const cartPopup = document.getElementById('cartPopup');
+      cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addToCart(name, image) {
+      cart.push({ name, image });
+      document.getElementById('cartCount').textContent = cart.length;
+      const li = document.createElement('li');
+      li.innerHTML = `<img src="${image}" width="30" style="vertical-align:middle; border-radius:6px; margin-right:8px;"> ${name}`;
+      document.getElementById('cartItems').appendChild(li);
+    }
+
+    document.getElementById('checkoutBtn').onclick = function() {
+      if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+      const message = cart.map(p => `*${p.name}*\n${p.image}`).join('%0A%0A');
+      window.open(`https://wa.me/${phone}?text=Checkout+Products:%0A%0A${message}`, '_blank');
+    };
+
+    function chatAndBuy(name, image) {
+      const message = `Hi, I'm interested in *${name}* %0A${image}`;
+      window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    }
+
+    const productGrid = document.getElementById("productGrid");
+    for (let i = 1; i <= 15; i++) {
+      const name = `Product ${i}`;
+      const image = `https://placehold.co/200x150?text=Product+${i}`;
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${image}" alt="${name}" />
+        <h4>${name}</h4>
+        <div class="actions">
+          <button class="chat-buy" onclick="chatAndBuy('${name}', '${image}')">Chat & Buy</button>
+          <button class="add-cart" onclick="addToCart('${name}', '${image}')">Add to Cart</button>
+        </div>
+      `;
+      productGrid.appendChild(card);
+    }
+  </script>
+</body>
+</html>
