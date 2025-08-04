@@ -315,6 +315,10 @@
       cartPopup.style.display = cartPopup.style.display === 'block' ? 'none' : 'block';
     }
 
+    function toggleMenu() {
+      document.getElementById('navbar').classList.toggle('active');
+    }
+
     function addToCart(name, image) {
       cart.push({ name, image });
       document.getElementById('cartCount').textContent = cart.length;
